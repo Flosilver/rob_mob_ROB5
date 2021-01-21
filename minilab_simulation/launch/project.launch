@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- Environnement -->
+	<include file="$(find minilab_simulation)/launch/minilab_simulation.launch" />
+	<!-- Mapping -->
+	<include file="$(find mapping)/launch/map_generator.launch" />
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find mapping)/map/map.yaml"/>
+	<node name="mapper" pkg="mapping" type="mapper" />
+	<node name="visu" pkg="mapping" type="visu" />
+	<!-- Planification -->
+	<node name="rrt" pkg="planification" type="rrt.py" output="screen" />
+	<!-- Commande -->
+	<node name="commande" pkg="commande" type="commande" />
+	<!-- Visualisation -->
+	<node name="rqt_graph" pkg="rqt_graph" type="rqt_graph" />
+
+
+</launch>
