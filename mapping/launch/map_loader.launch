@@ -8,4 +8,14 @@
     <node pkg="mapping" type="map_loader" name="loader" output="screen" />
     <!-- Visualisator -->
     <node pkg="visualisator" type="visu" name="visu" output="screen"> </node>
+	<!-- gmapping -->
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping"> 
+        <param name="delta" value="0.025" />
+        <param name="xmin" value="-20" />
+        <param name="xmax" value="5" />
+        <param name="ymin" value="-15" />
+        <param name="ymax" value="10" />
+    </node>
+    <!-- rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mapping)/map/rob_mob.rviz" />
 </launch>

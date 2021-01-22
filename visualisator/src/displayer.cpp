@@ -29,7 +29,7 @@ Displayer::Displayer() : map_client_(),
     map_client_ = n.serviceClient<mapping::BinaryMap>(map_srv);
     traj_client_ = n.serviceClient<planification::Checkpoints>(traj_srv);
     odom_sub_ = n.subscribe(odom_topic, 1, &Displayer::odomCallback, this);
-    tree_sub_ = n.subscribe(rrt_topic, 1, &Displayer::treeCallback, this);
+    tree_sub_ = n.subscribe(rrt_topic, 10, &Displayer::treeCallback, this);
     map_done_sub_ = n.subscribe(map_done_topic, 1, &Displayer::mapDoneCallback, this);
 
     // Init robot_

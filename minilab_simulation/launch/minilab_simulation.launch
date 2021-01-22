@@ -7,4 +7,5 @@
 		<arg name="use_gui" value="$(arg gui)" />
 	</include>
 	<include file="$(find minilab_simulation)/launch/minilab_state_publisher.launch" />
+	<node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" />
 </launch>

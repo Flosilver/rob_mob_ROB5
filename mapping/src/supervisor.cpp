@@ -54,7 +54,6 @@ cv::Point Supervisor::robotPos()
 
 void Supervisor::spin()
 {
-    std_msgs::Bool done;
     if (!done_ && map_client_.call(map_srv_))
     {
         nav_msgs::OccupancyGrid grid(map_srv_.response.map);
@@ -63,19 +62,21 @@ void Supervisor::spin()
         check_ = gridmap_.binaryMap().clone();
         map_frame_ = grid.header.frame_id;
 
-        cv::circle(check_, robot_pos_init_, 70, cv::Vec3b(0, 0, 0), CV_FILLED);
-        
+        cv::circle(check_, robot_pos_init_, 50, cv::Vec3b(0, 0, 0), CV_FILLED);
+
         // end condition
+        // cv::Point pos(robotPos());
         cv::floodFill(check_, robotPos(), cv::Scalar(155));
-        if ((int)check_.at<uchar>(0, 0) != 155 && (int)check_.at<uchar>(robot_pos_init_.y, robot_pos_init_.x) == 0)
+        if ((int)check_.at<uchar>(0, 0) != 155 && (int)check_.at<uchar>(robot_pos_init_.y, robot_pos_init_.x) != 155)
         {
+            std_msgs::Bool done;
             done_ = true;
-            cv::floodFill(gridmap_.binaryMap(), cv::Point(0,0), cv::Scalar(0));
+            cv::floodFill(gridmap_.binaryMap(), cv::Point(0, 0), cv::Scalar(0));
             std::cout << "finished!!\n";
+            done.data = done_;
+            done_pub_.publish(done);
         }
     }
-    done.data = done_;
-    done_pub_.publish(done);
     rate_.sleep();
 }
 
