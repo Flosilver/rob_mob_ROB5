@@ -21,6 +21,7 @@ void Loader::spin()
         done_ = true;
         gridmap_.setMap(map_srv_.response.map, false, 60);
         gridmap_.inflateMap(0.7);
+        cv::floodFill(gridmap_.binaryMap(), cv::Point(0, 0), cv::Scalar(0));
         done.data = done_;
         done_pub_.publish(done);
     }

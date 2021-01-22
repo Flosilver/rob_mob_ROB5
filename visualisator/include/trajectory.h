@@ -9,6 +9,8 @@
 // #include <opencv2/core/core.hpp>
 // #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include "gridmap2d.h"
+#include <planification/Checkpoints.h>
 
 class Trajectory
 {
@@ -44,7 +46,7 @@ public:
      * @param gridmap A gridmap containing the map of the environment.
      * @return True if all points of the checkpoints are in the map, else return false.
      */
-    // bool setTrajectory(const planification::Checkpoints &checkpoints, const gridmap_2d::GridMap2D &gridmap);
+    bool setTrajectory(const planification::Checkpoints &checkpoints, const gridmap_2d::GridMap2D &gridmap);
 
     /**
      * Display the trajectory on an Opencv matrix.

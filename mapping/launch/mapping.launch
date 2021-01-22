@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Environnement -->
+	<!-- <include file="$(find minilab_simulation)/launch/minilab_simulation.launch" /> -->
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping"> 
+        <param name="delta" value="0.025" />
+        <param name="xmin" value="-20" />
+        <param name="xmax" value="5" />
+        <param name="ymin" value="-15" />
+        <param name="ymax" value="10" />
+    </node>
+    <node pkg="rviz" type="rviz" name="rviz"> </node>
+
+</launch>

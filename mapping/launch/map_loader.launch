@@ -6,4 +6,6 @@
     <node name="map_server" pkg="map_server" type="map_server" args="$(find mapping)/map/map.yaml" />
     <!-- Explorer -->
     <node pkg="mapping" type="map_loader" name="loader" output="screen" />
+    <!-- Visualisator -->
+    <node pkg="visualisator" type="visu" name="visu" output="screen"> </node>
 </launch>

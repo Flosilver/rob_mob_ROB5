@@ -3,7 +3,7 @@
 	<!-- Environnement -->
 	<include file="$(find minilab_simulation)/launch/minilab_simulation.launch" />
 	<!-- Mapping -->
-	<include file="$(find mapping)/launch/map_loader.launch" />
+	<include file="$(find mapping)/launch/auto_explo.launch" />
 	<!-- Planification -->
 	<node name="rrt" pkg="planification" type="rrt.py" output="screen" />
 	<!-- Commande -->

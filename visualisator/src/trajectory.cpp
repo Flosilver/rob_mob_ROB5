@@ -10,26 +10,26 @@ Trajectory::~Trajectory()
     list_.clear();
 }
 
-// bool Trajectory::setTrajectory(const planification::Checkpoints &checkpoints, const gridmap_2d::GridMap2D &gridmap)
-// {
-//     list_.clear();
-//     unsigned int mx, my;
+bool Trajectory::setTrajectory(const planification::Checkpoints &checkpoints, const gridmap_2d::GridMap2D &gridmap)
+{
+    list_.clear();
+    unsigned int mx, my;
 
-//     for (const geometry_msgs::Point &pt : checkpoints.response.points.points)
-//     {
-//         if (gridmap.inMapBounds(pt.x, pt.y))
-//         {
-//             gridmap.worldToMap(pt.x, pt.y, mx, my);
-//             list_.push_back(cv::Point(my, mx));
-//         }
-//         else
-//         {
-//             list_.clear();
-//             return false;
-//         }
-//     }
-//     return true;
-// }
+    for (const geometry_msgs::Point &pt : checkpoints.response.points.points)
+    {
+        if (gridmap.inMapBounds(pt.x, pt.y))
+        {
+            gridmap.worldToMap(pt.x, pt.y, mx, my);
+            list_.push_back(cv::Point(my, mx));
+        }
+        else
+        {
+            list_.clear();
+            return false;
+        }
+    }
+    return true;
+}
 
 bool Trajectory::show(cv::Mat &dest) const
 {

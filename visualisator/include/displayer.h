@@ -12,7 +12,8 @@
 #include "gridmap2d.h"
 #include "trajectory.h"
 #include <mapping/BinaryMap.h>
-// #include "control/ListePoints.h"
+#include <planification/Checkpoints.h>
+#include <planification/ListePoints.h>
 
 #define WINDOW_NAME "Display Window"
 
@@ -42,7 +43,7 @@ private:
     gridmap_2d::GridMap2D gridmap_;
     cv::Mat display_map_;
     mapping::BinaryMap map_srv_;
-    // control::Traj traj_srv_;
+    planification::Checkpoints traj_srv_;
     Trajectory traj_;
     Robot robot_;
     Tree tree_;
@@ -60,7 +61,7 @@ public:
     // Topics callback functions
 
     void odomCallback(const nav_msgs::Odometry &msg);
-    // void treeCallback(const control::ListePoints &msg);
+    void treeCallback(const planification::ListePoints &msg);
     void mapDoneCallback(const std_msgs::Bool &msg);
 
     bool mappingDone();
