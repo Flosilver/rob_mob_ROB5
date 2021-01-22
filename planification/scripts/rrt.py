@@ -149,7 +149,7 @@ def rrt_expansion(t, env, action_type, cible):
         segment.points.append(Point(nearest_neighbor.state[0],nearest_neighbor.state[1],0))
         segment.points.append(Point(new_state[0],new_state[1],0))
         segmentPub.publish(segment)
-        rospy.sleep(0.1)
+        rospy.sleep(0.5)
 
 
 def rrt_connect(t,t2,env):
@@ -320,7 +320,7 @@ if __name__ == '__main__':
             test.points.append(Point(t.state[0],t.state[1],0))
             test.points.append(Point(t2.state[0],t2.state[1],0))
             segmentPub.publish(test)
-        rospy.sleep(0.1)
+        rospy.sleep(0.5)
         node_t, node_t2 = rrt_connect(t,t2,env)
         rospy.loginfo("rrt connect termine !")
 

@@ -1,4 +1,5 @@
 #include "tree.h"
+#include "node.h"
 
 #include <cmath>
 
