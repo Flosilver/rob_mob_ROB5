@@ -1,24 +1,29 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
-#include <memory>
+// #include <memory>
 #include <vector>
 #include <cstdlib>
 
-#include <opencv2/highgui.hpp>
+#include "ros/ros.h"
+#include "nav_msgs/OccupancyGrid.h"
+
+#define OCCUPIED 100
+#define FREE 0
 
 class Node
 {
     int x_;
     int y_;
-    std::shared_ptr<Node> parent_;
-    std::vector<Node> childs_;
+    // std::shared_ptr<Node> parent_;
+    std::vector<Node> neighbours_;
 
 public:
-    Node(int x = 0, int y = 0, std::shared_ptr<Node> parent = nullptr);
+    Node(int x = 0, int y = 0);
     Node(const Node &n);
     ~Node();
-    static Node &newRandNode(const cv::Mat &env);
+    Node& operator=(const Node& n);
+    static Node &newRandNode(const nav_msgs::OccupancyGrid& grid);
 
     const int &x() const { return x_; }
     int x() { return x_; }
@@ -28,14 +33,14 @@ public:
     int y() { return y_; }
     void y(int y) { y_ = y; }
 
-    std::shared_ptr<const Node> parent() const { return parent_; }
-    std::shared_ptr<Node> parent() { return parent_; }
+    // std::shared_ptr<const Node> parent() const { return parent_; }
+    // std::shared_ptr<Node> parent() { return parent_; }
 
-    const std::vector<Node> childs() const { return childs_; }
-    std::vector<Node> childs() { return childs_; }
+    const std::vector<Node> neighbours() const { return neighbours_; }
+    std::vector<Node> neighbours() { return neighbours_; }
 
     float norm(const Node &to);
-    void addChild(Node &n);
+    void addNeighbour(Node &n);
 };
 
 #endif // __NODE_H__

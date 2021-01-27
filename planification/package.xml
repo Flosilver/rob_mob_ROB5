@@ -36,9 +36,11 @@
   <depend>rospy</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>std_msgs</depend>
   <build_depend>message_generation</build_depend>
   <build_export_depend>message_runtime</build_export_depend>
   <exec_depend>message_runtime</exec_depend>
+  <depend>mapping</depend>
   <!--   Note that this is equivalent to the following: -->
   <!-- Use build_depend for packages you need at compile time: -->
   <!-- Use build_export_depend for packages you need in order to build against this package: -->
