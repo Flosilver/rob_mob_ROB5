@@ -23,7 +23,7 @@ class PRM
 
     ros::ServiceServer traj_srv_;
 
-    mapping::BinaryMap map_srv_;
+    //mapping::BinaryMap map_srv_;
     nav_msgs::OccupancyGrid map_;
     planification::ListePoints traj_;
 
@@ -32,25 +32,28 @@ class PRM
     geometry_msgs::PoseStamped objectiv_;
     bool mapping_done_;
     bool is_waiting_;
+    ros::Rate rate_;
 
 public:
     PRM(int nb_nodes = 10);
     ~PRM();
 
-    bool publishTraj(planification::Checkpoints::Request& req, planification::Checkpoints::Response& res);
-    void mappingDoneCallback(const std_msgs::Bool& msg);
-    void objectivCallback(const geometry_msgs::PoseStamped& msg);
-    
-    const bool& wait() const { return is_waiting_; }
+    bool publishTraj(planification::Checkpoints::Request &req, planification::Checkpoints::Response &res);
+    void mappingDoneCallback(const std_msgs::Bool &msg);
+    void objectivCallback(const geometry_msgs::PoseStamped &msg);
+
+    const bool &wait() const { return is_waiting_; }
     bool wait() { return is_waiting_; }
 
-    const bool& is_done() const { return mapping_done_; }
+    const bool &is_done() const { return mapping_done_; }
     bool is_done() { return mapping_done_; }
 
-    const std::vector<Node>& summits() const { return summits_; }
-    std::vector<Node> summits() {return summits_; }
-
-     void generateGraph();
+    const std::vector<Node> &summits() const { return summits_; }
+    std::vector<Node> summits() { return summits_; }
+    
+    void generateGraph();   
+    bool waitMapping();
 };
+
 
 #endif // __PRM_H__

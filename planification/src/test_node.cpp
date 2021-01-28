@@ -4,6 +4,10 @@
 #include <mapping/BinaryMap.h>
 #include <vector>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+#include "prm.h"
 
 bool done = false;
 
@@ -13,11 +17,12 @@ void doneCallback(const std_msgs::Bool& msg)
 }
 
 int main(int argc, char** argv)
-{
+{  
+    std::srand(time(NULL));
     ros::init(argc, argv, "test");
     ros::NodeHandle n;
 
-    ros::ServiceClient map_client = n.serviceClient<mapping::BinaryMap>("/binary_map");
+    /*ros::ServiceClient map_client = n.serviceClient<mapping::BinaryMap>("/binary_map");
     ros::Subscriber done_sub = n.subscribe("/mapping_done", 1, doneCallback);
 
     mapping::BinaryMap map_srv;
@@ -29,7 +34,9 @@ int main(int argc, char** argv)
     map = map_srv.response.map;
     // data = map.data;
 
-    std::cout << (int)map.data[0] << std::endl;
+    std::cout << (int)map.data[0] << std::endl;*/
+
+    PRM prm();
 
     return 0;
 }

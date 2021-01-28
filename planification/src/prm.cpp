@@ -2,20 +2,22 @@
 #include "prm.h"
 
 #include <string>
+#include <iostream>
 
 PRM::PRM(int nb_nodes) : done_sub_(),
-graph_pub_(),
-obj_sub_(),
-map_client_(),
-traj_client_(),
-map_srv_(),
-map_(),
-traj_(),
-summits_(),
-nb_nodes_(nb_nodes),
-objectiv_(),
-mapping_done(false),
-is_waiting_(true)
+                         graph_pub_(),
+                         obj_sub_(),
+                         map_client_(),
+                         traj_srv_(),
+                         //map_srv_(),
+                         map_(),
+                         traj_(),
+                         summits_(),
+                         nb_nodes_(nb_nodes),
+                         objectiv_(),
+                         mapping_done_(false),
+                         is_waiting_(true),
+                         rate_(1.0f)
 {
     ros::NodeHandle n("~");
 
@@ -29,12 +31,70 @@ is_waiting_(true)
 
     // Set service & client, publisher & subscriber
     done_sub_ = n.subscribe(done_topic, 1, &PRM::mappingDoneCallback, this);
-    graph_pub_ = n.advertise<planification::ListePoints>(tree_topic, 5);
+    graph_pub_ = n.advertise<planification::ListePoints>(graph_topic, 5);
     obj_sub_ = n.subscribe(obj_topic, 1, &PRM::objectivCallback, this);
     map_client_ = n.serviceClient<mapping::BinaryMap>(map_topic);
-    traj_srv_ = n.advertiseService(traj_topic, &PRM::publish_traj, this);
+    traj_srv_ = n.advertiseService(traj_topic, &PRM::publishTraj, this);
+
+    // init rate according to param
+    rate_ = ros::Rate(n.param("rate", 1.0f));
+
+    std::cout << map_.info.width << " / " << map_.info.resolution << std::endl;
 }
 
-PRM::~PRM(){
+PRM::~PRM()
+{
     summits_.clear();
+}
+
+bool PRM::publishTraj(planification::Checkpoints::Request &req, planification::Checkpoints::Response &res)
+{
+    if (!mapping_done_ || is_waiting_)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+void PRM::mappingDoneCallback(const std_msgs::Bool &msg)
+{
+    mapping_done_ = msg.data;
+}
+
+void PRM::objectivCallback(const geometry_msgs::PoseStamped &msg)
+{
+    objectiv_ = msg;
+}
+
+void PRM::generateGraph()
+{
+    // create every node randomly
+    for (int i=0 ; i<nb_nodes_ ; i++)
+    {
+        summits_.push_back(Node::newRandNode(map_));
+    }
+
+    // check visibility and add neighbours
+    for (int i=0 ; i<summits_.size() ; i++)
+    {
+        for (int j=i+1 ; j<summits_.size() ; j++)
+        {
+            
+        }
+    }
+}
+
+bool PRM::waitMapping()
+{
+    mapping::BinaryMap map_srv;
+    if (mapping_done_)
+    {
+        while (!map_client_.call(map_srv)) {ros::spinOnce();}
+        map_ = map_srv.response.map;
+        generateGraph();
+    }
+    return mapping_done_;
 }
