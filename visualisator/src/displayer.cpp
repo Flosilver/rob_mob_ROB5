@@ -14,7 +14,10 @@ Displayer::Displayer() : map_client_(),
                          traj_(),
                          mapping_done_(false),
                          final_map_get_(false),
-                         rate_(1.0f)
+                         rate_(1.0f),
+                         traj_time_(ros::Time::now()),
+                         traj_update_time_(10.),
+                         traj_got_(false)
 {
     ros::NodeHandle n("~");
 
@@ -138,12 +141,19 @@ void Displayer::display()
             displayTree(display_map_);
         }
 
-        // Récupération de la liste de checkpoint
-        if (ros::Time::now() - traj_time_ > traj_update_time_ && traj_client_.call(traj_srv_))
+        // Récupération de la trajectoire
+        if (!traj_got_ && ros::Time::now() - traj_time_ > traj_update_time_ && traj_client_.call(traj_srv_))
         {
             traj_.setTrajectory(traj_srv_, gridmap_);
             traj_.print();
             traj_time_ = ros::Time::now();
+            traj_got_ = true;
+        }
+
+        // Affichage de la trajectoire
+        if (traj_.size() > 0)
+        {
+            traj_.show(display_map_);
         }
 
         cv::imshow(WINDOW_NAME, display_map_);
