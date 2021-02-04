@@ -41,7 +41,7 @@ class Env:
         dist = Env.dist(state,cible)
         if dist == 0 :
             dist = 1
-        norm = min(50,dist)
+        norm = min(100,dist)
         return [int(norm/dist*(cible[0]-state[0])),int(norm/dist*(cible[1]-state[1]))]
 
 
@@ -53,7 +53,7 @@ class Env:
         dist = Env.dist(state,cible)
         if dist == 0 :
             dist = 1
-        norm = min(50,dist)
+        norm = min(100,dist)
         return [int(norm/dist*(cible[0]-state[0])),int(norm/dist*(cible[1]-state[1]))]
 
 
@@ -149,7 +149,7 @@ def rrt_expansion(t, env, action_type, cible):
         segment.points.append(Point(nearest_neighbor.state[0],nearest_neighbor.state[1],0))
         segment.points.append(Point(new_state[0],new_state[1],0))
         segmentPub.publish(segment)
-        rospy.sleep(0.5)
+        #rospy.sleep(0.1)
 
 
 def rrt_connect(t,t2,env):
@@ -265,6 +265,21 @@ def transcription_repere_map(point,map_origin,resolution):
     pixel = [x,y]
     return pixel
 
+if __name__ == '__main_test__':
+    rospy.init_node('planification',anonymous=False)
+    checkpoints = ListePoints()
+    checkpoints.points.append(Point(1,1,0))
+    checkpoints.points.append(Point(1,2,0))
+    checkpoints.points.append(Point(2,2,0))
+    checkpoints.points.append(Point(2,3,0))
+    checkpoints.points.append(Point(-1,-1,0))
+    checkpoints.points.append(Point(-10,-10,0))
+    checkpoints.points.append(Point(0,0,0))
+
+    checkpointService = rospy.Service('checkpoints',Checkpoints,send_checkpoints)
+    rospy.loginfo("liste des checkpoints envoyee !")
+    rospy.spin()
+
 # main
 if __name__ == '__main__':
     #r = rospy.rate(30)
@@ -315,12 +330,12 @@ if __name__ == '__main__':
         rospy.loginfo("execution du rrt connect ...")
         # creation du publisher pour l'affichage des segments
         segmentPub = rospy.Publisher('segments_rrt',ListePoints,queue_size=100,latch=True)
-        for i in range(5):
-            test = ListePoints()
-            test.points.append(Point(t.state[0],t.state[1],0))
-            test.points.append(Point(t2.state[0],t2.state[1],0))
-            segmentPub.publish(test)
-        rospy.sleep(0.5)
+        #for i in range(5):
+        #    test = ListePoints()
+        #    test.points.append(Point(t.state[0],t.state[1],0))
+        #    test.points.append(Point(t2.state[0],t2.state[1],0))
+        #    segmentPub.publish(test)
+        #rospy.sleep(0.5)
         node_t, node_t2 = rrt_connect(t,t2,env)
         rospy.loginfo("rrt connect termine !")
 

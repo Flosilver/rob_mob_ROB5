@@ -7,8 +7,10 @@
 #include "planification/ListePoints.h"
 #include "planification/Checkpoints.h"
 
-static float K = 0.5;
+static float K1 = 2;
+static float K2 = 1.7;
 static float dist_p = 0.5;
+static float cap = 3;
 
 geometry_msgs::Pose pos;
 planification::ListePoints checkpoints;
@@ -42,6 +44,7 @@ int main(int argc, char **argv)
   ROS_INFO("Service checkpoints received");
   checkpoints = srv.response.points;
 
+
   geometry_msgs::Point point = checkpoints.points[indice_point];
   ROS_INFO("x : %f", point.x);
   ROS_INFO("y : %f", point.y);
@@ -49,7 +52,7 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
 
-    if (sqrt(pow(point.x - pos.position.x, 2) + pow(point.y - pos.position.y, 2)) <= 0.1 ) //lorsque l'on est assez proche du point de passage actuel
+    if (sqrt(pow(point.x - pos.position.x, 2) + pow(point.y - pos.position.y, 2)) <= 0.2 ) //lorsque l'on est assez proche du point de passage actuel
     {
       if (indice_point + 1 < checkpoints.points.size()) //s'il existe, on passe au point suivant
       {
@@ -77,8 +80,8 @@ int main(int argc, char **argv)
 
     float dist = sqrt(pow(err_x,2)+pow(err_y,2));
     // vitesses carthésiennes désirées du robot
-    float v_des_x = K * err_x;
-    float v_des_y = K * err_y;
+    float v_des_x =  err_x;
+    float v_des_y =  err_y;
 
     if(end) //lorsque l'on est assez proche du dernier point, on met la commande à 0
     {
@@ -87,13 +90,15 @@ int main(int argc, char **argv)
     }
     else
     {
-      u_des_x = cos(theta) * v_des_x/dist + sin(theta) * v_des_y/dist; //on normalise le vecteur v_des pour avoir une vitesse constante
-      u_des_w = -sin(theta) / dist_p  * v_des_x + cos(theta) / dist_p  * v_des_y;
+      //u_des_x = cos(theta) * v_des_x/dist + sin(theta) * v_des_y/dist; //on normalise le vecteur v_des pour avoir une vitesse constante
+      u_des_x = cos(theta) * K1*v_des_x + sin(theta) * K1*v_des_y,cap;
+      u_des_x = std::min(abs(u_des_x),cap)*u_des_x/abs(u_des_x);
+      u_des_w = -sin(theta) / dist_p  * K2*v_des_x + cos(theta) / dist_p  * K2*v_des_y;
     }
 
     geometry_msgs::Twist cmd;
     cmd.linear.x = u_des_x;
-    cmd.angular.z = u_des_w;
+    cmd.angular.z = u_des_w/sqrt(pow(v_des_x,2)+pow(v_des_y,2));
     commande_pub.publish(cmd);
     ROS_INFO("commande vx : %f", cmd.linear.x);
     ROS_INFO("commande w : %f", cmd.angular.z);
