@@ -7,20 +7,41 @@
 #include "planification/ListePoints.h"
 #include "planification/Checkpoints.h"
 
-static float K1 = 2;
-static float K2 = 1.7;
+static float freq = 10; //fréquence de la boucle
+
+//gains pour les correcteurs
+static float K1 = 3;
+static float K2_P = 2;
+static float K2_D = 0.1;
+//distance du point de suivi
 static float dist_p = 0.5;
-static float cap = 3;
+//saturation de la commande de vitesse d'avance
+static float cap = 1;
 
 geometry_msgs::Pose pos;
 planification::ListePoints checkpoints;
-float u_des_x;
-float u_des_w;
+float u_des_x = 0;
+float u_des_w = 0;
+float err_w = 0;
+float d_err_w = 0;
+float err_w_prec = 0;
 bool end = false;
 
 void positionCallback(const nav_msgs::Odometry &msg) //Callback de récuperation de l'odométrie
 {
   pos = msg.pose.pose;
+}
+
+//retourne l'angle passé en argument entre -pi et pi
+float norm_angle(float angle){
+  float res = angle;
+  while(res>M_PI){
+    res -= 2*M_PI;
+  }
+  while(res<-M_PI){
+    res += 2*M_PI;
+  }
+  return res;
 }
 
 int main(int argc, char **argv)
@@ -32,7 +53,7 @@ int main(int argc, char **argv)
   ros::Subscriber position_sub = n.subscribe("odom", 1000, positionCallback);
   ros::ServiceClient checkpoints_client = n.serviceClient<planification::Checkpoints>("checkpoints");
   planification::Checkpoints srv;
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(freq);
   ros::Rate checkpoint_rate(1);
 
   int indice_point = 0;
@@ -90,15 +111,23 @@ int main(int argc, char **argv)
     }
     else
     {
-      //u_des_x = cos(theta) * v_des_x/dist + sin(theta) * v_des_y/dist; //on normalise le vecteur v_des pour avoir une vitesse constante
-      u_des_x = cos(theta) * K1*v_des_x + sin(theta) * K1*v_des_y,cap;
+      //correcteur proprtionnel saturé pour la vitesse d'avance
+      u_des_x = K1*(cos(theta)*v_des_x + sin(theta)*v_des_y);
       u_des_x = std::min(abs(u_des_x),cap)*u_des_x/abs(u_des_x);
-      u_des_w = -sin(theta) / dist_p  * K2*v_des_x + cos(theta) / dist_p  * K2*v_des_y;
+
+      //correcteur proportionnel dérivé pour la vitesse de rotation
+      //calcul de l'erreur angulaire
+      err_w = norm_angle(atan2(v_des_y,v_des_x)-theta);
+      //dérivée de l'erreur angulaire
+      d_err_w = (err_w - err_w_prec)*freq;
+      err_w_prec = err_w;
+      //commande PD normalisée par rapport à la distance pour réduire l'instabilité
+      u_des_w = ( K2_P*err_w + K2_D*d_err_w );
     }
 
     geometry_msgs::Twist cmd;
     cmd.linear.x = u_des_x;
-    cmd.angular.z = u_des_w/sqrt(pow(v_des_x,2)+pow(v_des_y,2));
+    cmd.angular.z = u_des_w;
     commande_pub.publish(cmd);
     ROS_INFO("commande vx : %f", cmd.linear.x);
     ROS_INFO("commande w : %f", cmd.angular.z);
