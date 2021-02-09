@@ -23,7 +23,7 @@ public:
     Node(const Node &n);
     ~Node();
     Node& operator=(const Node& n);
-    static Node &newRandNode(const nav_msgs::OccupancyGrid& grid);
+    static Node *newRandNode(const nav_msgs::OccupancyGrid& grid);
 
     const int &x() const { return x_; }
     int x() { return x_; }
@@ -40,12 +40,8 @@ public:
     std::vector<Node> neighbours() { return neighbours_; }
 
     float norm(const Node &to) const;
-    bool canSee(const Node &n, nav_msgs::OccupancyGrid grid) const;
+    bool canSee(const Node &n, const nav_msgs::OccupancyGrid& grid) const;
     void addNeighbour(Node &n);
-
-// private:
-//     bool cadran(int& x, int& y, int dx, int dy) const;
-//     bool octant(int& x, int& y, int dx, int dy, int e) const;
 };
 
 #endif // __NODE_H__

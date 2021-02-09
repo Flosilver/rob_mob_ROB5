@@ -53,6 +53,7 @@ private:
     ros::Rate rate_;
     ros::Time traj_time_;
     ros::Duration traj_update_time_;
+    bool traj_got_;
 
 public:
     Displayer();

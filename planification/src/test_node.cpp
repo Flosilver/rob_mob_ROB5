@@ -36,7 +36,20 @@ int main(int argc, char** argv)
 
     std::cout << (int)map.data[0] << std::endl;*/
 
-    PRM prm();
+    PRM prm(20);
+    std::cout << "start!\n";
+
+    while (prm.waitMapping())
+    {
+        // std::cout << "piou\n";
+        ros::spinOnce();
+    }
+
+    std::cout << "the end\n";
+    
+    // fonction de génération de trajectoire en fonction de l'objectif et 
+    // de la position du robot.
+    // TODO 
 
     return 0;
 }

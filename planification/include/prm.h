@@ -51,7 +51,21 @@ public:
     const std::vector<Node> &summits() const { return summits_; }
     std::vector<Node> summits() { return summits_; }
     
-    void generateGraph();   
+    /**
+     * @brief Generate the graphe of the RPM. Generate *nb_nodes*
+     * random summits in the map. Create neighbours between each node.
+     * Send their creation with the graph publisher for the displayer.
+     * 
+     */
+    void generateGraph();
+
+    /**
+     * @brief Check if mapping is finished. When it is, the graph
+     * is then generated and send for display.
+     * 
+     * @return true when the mapping is NOT finished.
+     * @return false when the mapping is finished.
+     */
     bool waitMapping();
 };
 

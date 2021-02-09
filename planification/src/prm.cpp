@@ -72,17 +72,29 @@ void PRM::objectivCallback(const geometry_msgs::PoseStamped &msg)
 void PRM::generateGraph()
 {
     // create every node randomly
-    for (int i=0 ; i<nb_nodes_ ; i++)
+    for (int i = 0; i < nb_nodes_; i++)
     {
-        summits_.push_back(Node::newRandNode(map_));
+        summits_.push_back(*Node::newRandNode(map_));
     }
-
     // check visibility and add neighbours
-    for (int i=0 ; i<summits_.size() ; i++)
+    for (int i = 0; i < summits_.size(); i++)
     {
-        for (int j=i+1 ; j<summits_.size() ; j++)
+        for (int j = i + 1; j < summits_.size(); j++)
         {
-            
+            if (summits_[i].canSee(summits_[j], map_))
+            {
+                summits_[i].addNeighbour(summits_[j]);
+                summits_[j].addNeighbour(summits_[i]);
+                planification::ListePoints segment;
+                geometry_msgs::Point p1, p2;
+                p1.x = summits_[i].x();
+                p1.y = summits_[i].y();
+                p2.x = summits_[j].x();
+                p2.y = summits_[j].y();
+                segment.points.push_back(p1);
+                segment.points.push_back(p2);
+                graph_pub_.publish(segment);
+            }
         }
     }
 }
@@ -90,11 +102,15 @@ void PRM::generateGraph()
 bool PRM::waitMapping()
 {
     mapping::BinaryMap map_srv;
+    // std::cout << mapping_done_ << std::endl;
     if (mapping_done_)
     {
-        while (!map_client_.call(map_srv)) {ros::spinOnce();}
+        while (!map_client_.call(map_srv))
+        {
+            ros::spinOnce();
+        }
         map_ = map_srv.response.map;
         generateGraph();
     }
-    return mapping_done_;
+    return !mapping_done_; // if the mapping is done, we don't wait anymore
 }

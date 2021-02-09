@@ -3,7 +3,7 @@
 // #include <memory>
 
 Node::Node(int x, int y) : x_(x),
-                           y_(y),
+                           y_(y)
 {
 }
 
@@ -23,13 +23,13 @@ Node &Node::operator=(const Node &n)
 {
     x_ = n.x_;
     y_ = n.y_;
-    neightbours_ = n.neighbours_;
+    neighbours_ = n.neighbours_;
     return *this;
 }
 
-Node &Node::newRandNode(const nav_msgs::OccupancyGrid &grid)
+Node *Node::newRandNode(const nav_msgs::OccupancyGrid &grid)
 {
-    Node &new_node();
+    Node *new_node = new Node();
     int x = 0, y = 0;
     int width = grid.info.width;
     int height = grid.info.height;
@@ -38,14 +38,14 @@ Node &Node::newRandNode(const nav_msgs::OccupancyGrid &grid)
         x = rand() % width;
         y = rand() % height;
     } while ((int)grid.data[x * width + y] != FREE);
-    new_node.x() = x;
-    new_node.y() = y;
+    new_node->x_ = x;
+    new_node->y_ = y;
     return new_node;
 }
 
 float Node::norm(const Node &to) const
 {
-    return std::sqrt(std::pow(to.x_ - x_, 2) + std::pow(to.y_ - y_));
+    return std::sqrt(std::pow(to.x_ - x_, 2) + std::pow(to.y_ - y_, 2));
 }
 
 // bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
@@ -83,7 +83,7 @@ float Node::norm(const Node &to) const
 //     }
 // }
 
-bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
+bool Node::canSee(const Node &n, const nav_msgs::OccupancyGrid &grid) const
 {
     int dx, dy;
     int x(x_);
@@ -92,11 +92,11 @@ bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
     uint h = grid.info.height;
 
     dx = n.x_ - x_;
+    dy = n.y_ - y_;
     if (dx != 0)
     {
         if (dx > 0)
         {
-            dy = n.y_ - y_;
             if (dy != 0)
             {
                 if (dy > 0)
@@ -111,7 +111,7 @@ bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
 
                         do
                         {
-                            if (grid.data[x * w + y] == OCCUPIED)
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
                             {
                                 return false;
                             }
@@ -122,7 +122,7 @@ bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
                                 e += dx;
                             }
                             x += 1;
-                        } while (x == n.x_);
+                        } while (x <= n.x_);
                         return true;
                     }
                     else
@@ -134,7 +134,7 @@ bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
 
                         do
                         {
-                            if (grid.data[x * w + y] == OCCUPIED)
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
                             {
                                 return false;
                             }
@@ -145,7 +145,7 @@ bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
                                 e += dy;
                             }
                             y += 1;
-                        } while (y == n.y_);
+                        } while (y <= n.y_);
                         return true;
                     }
                 }
@@ -161,7 +161,7 @@ bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
 
                         do
                         {
-                            if (grid.data[x * w + y] == OCCUPIED)
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
                             {
                                 return false;
                             }
@@ -172,10 +172,196 @@ bool Node::canSee(const Node &n, nav_msgs::OccupancyGrid grid) const
                                 e += dx;
                             }
                             x += 1;
-                        } while (x == n.x_);
+                        } while (x <= n.x_);
+                        return true;
+                    }
+                    else
+                    {
+                        // 7th octant
+                        int e(dx);
+                        dx = dx * 2;
+                        dy = dy * 2;
+
+                        do
+                        {
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
+                            {
+                                return false;
+                            }
+                            e += dx;
+                            if (e > 0)
+                            {
+                                x += 1;
+                                e += dy;
+                            }
+                            y -= 1;
+                        } while (y >= n.y_);
+                        return true;
                     }
                 }
             }
+            else // dy == 0 && dx > 0
+            {
+                // vecteur horizontal vers la droite
+                for (int i = x_; i <= n.x_; i++)
+                {
+                    if ((int)grid.data[i * w + y] == OCCUPIED)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        else // dx < 0
+        {
+            if (dy != 0)
+            {
+                if (dy > 0)
+                {
+                    // 2nd cadran
+                    if (-dx >= dy)
+                    {
+                        // 4e octant
+                        int e(dx);
+                        dx *= 2;
+                        dy *= 2;
+
+                        do
+                        {
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
+                            {
+                                return false;
+                            }
+                            e += dy;
+                            if (e >= 0)
+                            {
+                                y += 1;
+                                e += dx;
+                            }
+                            x -= 1;
+                        } while (x >= n.x_);
+                        return true;
+                    }
+                    else
+                    {
+                        // 3e octant
+                        int e(dy);
+                        dx *= 2;
+                        dy *= 2;
+                        do
+                        {
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
+                            {
+                                return false;
+                            }
+                            e += dx;
+                            if (e <= 0)
+                            {
+                                x -= 1;
+                                e += dy;
+                            }
+                            y += 1;
+                        } while (y <= n.y_);
+                        return true;
+                    }
+                }
+                else // dy < 0 et dx < 0
+                {
+                    // 3e cadran
+                    if (dx <= dy)
+                    {
+                        // 5e octant
+                        int e(dx);
+                        dx *= 2;
+                        dy *= 2;
+                        do
+                        {
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
+                            {
+                                return false;
+                            }
+                            e -= dy;
+                            if (e >= 0)
+                            {
+                                y -= 1;
+                                e += dx;
+                            }
+                            x -= 1;
+                        } while (x >= n.x_);
+                        return true;
+                    }
+                    else
+                    {
+                        // 6e octant
+                        int e(dy);
+                        dx *= 2;
+                        dy *= 2;
+                        do
+                        {
+                            if ((int)grid.data[x * w + y] == OCCUPIED)
+                            {
+                                return false;
+                            }
+                            e -= dx;
+                            if (e >= 0)
+                            {
+                                x -= 1;
+                                e += dy;
+                            }
+                            y -= 1;
+                        } while (y >= n.y_);
+                        return true;
+                    }
+                }
+            }
+            else // dy = 0 et dx < 0
+            {
+                for (int i = x_; i >= n.x_; i--)
+                {
+                    if ((int)grid.data[i * w + y] == OCCUPIED)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+    }
+    else // dx = 0
+    {
+        if (dy != 0)
+        {
+            if (dy > 0)
+            {
+                for (int i = y_; i <= n.y_; i++)
+                {
+                    if ((int)grid.data[x * w + i] == OCCUPIED)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            if (dy < 0)
+            {
+                for (int i = y_; i >= n.y_; i--)
+                {
+                    if ((int)grid.data[x * w + i] == OCCUPIED)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        else
+        {
+            if ((int)grid.data[x * w + y] == OCCUPIED)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }
