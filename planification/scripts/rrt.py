@@ -44,15 +44,16 @@ if __name__ == '__main__':
     rospy.Subscriber("odom",Odometry,pos_caller.positionCallback)
     # topic de l'objectif du rrt
     obj_caller = util_rrt.Obj_caller()
+    print(obj_caller.obj)
     rospy.Subscriber("move_base_simple/goal",PoseStamped,obj_caller.objectiveCallback)
-    obj_caller.obj = Point(-10,-4,0)
+    #obj_caller.obj = Point(-10,-4,0)
     #obj_caller.obj = Point(0,0,0)
 
     while not rospy.is_shutdown():
         rospy.loginfo("on entre dans la boucle du rrt")
         rospy.loginfo("en attente de l'objectif du rrt...")
         while(obj_caller.obj==None):
-            rospy.spin()
+            rospy.sleep(0.1)
         rospy.loginfo("objectif recupere")
         # service de recuperation de la matrice map
         rospy.wait_for_service('binary_map')

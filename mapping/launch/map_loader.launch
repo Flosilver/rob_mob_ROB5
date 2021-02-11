@@ -7,7 +7,9 @@
     <!-- Explorer -->
     <node pkg="mapping" type="map_loader" name="loader" output="screen" />
     <!-- Visualisator -->
-    <node pkg="visualisator" type="visu" name="visu" output="screen"> </node>
+    <node pkg="visualisator" type="visu" name="visu" output="screen"> 
+        <param name="rate" value="33" />
+    </node>
 	<!-- gmapping -->
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping"> 
         <param name="delta" value="0.025" />
@@ -18,4 +20,8 @@
     </node>
     <!-- rviz -->
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mapping)/map/rob_mob.rviz" />
+    <!-- Path finding -->
+    <node pkg="planification" type="rrt.py" name="rrt" output="screen" />
+    <!-- Commande -->
+    <node pkg="commande" type="commande" name="commande" />
 </launch>

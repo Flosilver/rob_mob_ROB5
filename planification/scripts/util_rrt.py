@@ -147,6 +147,7 @@ def rrt_expansion(t, env, action_type, cible,segmentPub):
         segment.points.append(Point(nearest_neighbor.state[0],nearest_neighbor.state[1],0))
         segment.points.append(Point(new_state[0],new_state[1],0))
         segmentPub.publish(segment)
+        #rospy.sleep(0.1)
 
 
 def rrt_connect(t,t2,env,segmentPub):
@@ -222,7 +223,7 @@ def simplify_path(path_tree, env):
         path_tree.all_nodes.append(node)
 
 class Pos_caller():
-    def _init_(self):
+    def __init__(self):
         self.pos = None
     def positionCallback(self,msg):
         """
@@ -232,14 +233,16 @@ class Pos_caller():
         self.pos = msg.pose.pose.position
 
 class Obj_caller():
-    def _init_(self):
+    def __init__(self):
         self.obj = None
+
     def objectiveCallback(self,msg):
         """
         Callback du subscriber de l'objectif
         """
         #self.obj = Point(msg.pose.position.y,msg.pose.position.x,0)
         self.obj = msg.pose.position
+        print(self.obj)
 
 
 def transcription_map_repere(pixel,map_origin,resolution):
